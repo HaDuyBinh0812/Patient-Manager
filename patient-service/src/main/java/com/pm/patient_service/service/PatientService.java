@@ -1,10 +1,12 @@
 package com.pm.patient_service.service;
 
+import billing.BillingServiceGrpc;
 import com.pm.patient_service.Repository.PatientRepository;
 import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
 import com.pm.patient_service.exception.EmailAlreadyExitsException;
 import com.pm.patient_service.exception.PatientNotFoundException;
+import com.pm.patient_service.grpc.BillingServiceGrpcClient;
 import com.pm.patient_service.mapper.PatientMapper;
 import com.pm.patient_service.model.Patient;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
+    private final BillingServiceGrpcClient billingServiceGrpcClient;
 
     public List<PatientResponseDTO> getPatient() {
         List<Patient> patients = patientRepository.findAll();
@@ -35,6 +38,9 @@ public class PatientService {
                     + patientRequestDTO.getEmail());
         }
         Patient newPatient = patientRepository.save(patientMapper.toModel(patientRequestDTO));
+
+        billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(), newPatient.getEmail());
+
         return patientMapper.toDTO(newPatient);
     }
 
@@ -53,7 +59,7 @@ public class PatientService {
         patient.setDateOfBirth(LocalDate.parse(patientRequestDTO.getDateOfBirth()));
 
         Patient updatePatient = patientRepository.save(patient);
-        return patientMapper.toDTO(patient);
+        return patientMapper.toDTO(updatePatient);
     }
 
     //Delete patient

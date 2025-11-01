@@ -31,6 +31,8 @@ public class BillingServiceGrpcClient {
                 .setPatientId(patientId).setName(name).setEmail(email).build();
 
         BillingResponse response = blockingStub.createBillingAccount(billingRequest);
+        log.info("Received response from billing service via GRPC: {}", response);
+        return response;
     }
 
 }
