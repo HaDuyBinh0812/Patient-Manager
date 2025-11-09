@@ -1,7 +1,7 @@
 package com.pm.patient_service.service;
 
-import billing.BillingServiceGrpc;
-import com.pm.patient_service.Repository.PatientRepository;
+import com.pm.patient_service.kafka.KafkaProducer;
+import com.pm.patient_service.repository.PatientRepository;
 import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
 import com.pm.patient_service.exception.EmailAlreadyExitsException;
@@ -23,6 +23,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final PatientMapper patientMapper;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
+    private final KafkaProducer kafkaProducer;
 
     public List<PatientResponseDTO> getPatient() {
         List<Patient> patients = patientRepository.findAll();
@@ -40,6 +41,8 @@ public class PatientService {
         Patient newPatient = patientRepository.save(patientMapper.toModel(patientRequestDTO));
 
         billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(), newPatient.getEmail());
+
+        kafkaProducer.sendEvent(newPatient);
 
         return patientMapper.toDTO(newPatient);
     }
