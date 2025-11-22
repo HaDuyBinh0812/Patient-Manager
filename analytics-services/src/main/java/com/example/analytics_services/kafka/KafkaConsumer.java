@@ -1,0 +1,31 @@
+package com.example.analytics_services.kafka;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+import patient.events.PatientEvent;
+
+
+@Service
+public class KafkaConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(
+            KafkaConsumer.class);
+
+    @KafkaListener(topics = "patient", groupId = "analytics-service")
+    public void consumeEvent(byte[] event) {
+        log.info("Consumer triggered with {} bytes", event.length);
+        try {
+            PatientEvent patientEvent = PatientEvent.parseFrom(event);
+            log.info("✅ Received Patient Event: [id={}, name={}, email={}]",
+                    patientEvent.getPatientId(),
+                    patientEvent.getName(),
+                    patientEvent.getEmail());
+        } catch (Exception e) {
+            log.error("❌ Error deserializing event", e);
+        }
+    }
+
+}

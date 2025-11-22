@@ -25,12 +25,12 @@ public class KafkaProducer {
             kafkaTemplate.send("patient", patientEvent.toByteArray())
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
-                            log.info("✅ Message sent successfully to topic '{}', partition={}, offset={}",
+                            log.info("Message sent successfully to topic '{}', partition={}, offset={}",
                                     result.getRecordMetadata().topic(),
                                     result.getRecordMetadata().partition(),
                                     result.getRecordMetadata().offset());
                         } else {
-                            log.error("❌ Failed to send message", ex);
+                            log.error("Failed to send message", ex);
                         }
                     });
 

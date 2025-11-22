@@ -9,10 +9,10 @@ RUN mvn dependency:go-offline -B
 
 # Copy mã nguồn và build ứng dụng
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
 # --- Giai đoạn runtime ---
-FROM openjdk:21-jdk AS runner
+FROM eclipse-temurin:21-jdk AS runner
 
 WORKDIR /app
 
